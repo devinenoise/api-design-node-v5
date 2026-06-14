@@ -1,4 +1,7 @@
 import express from 'express'
+import habitRoutes from './routes/habitRoutes.ts'
+import userRoutes from './routes/userRoutes.ts'
+import authRoutes from './routes/authRoutes.ts'
 
 const app = express()
 
@@ -12,6 +15,9 @@ app.get('/health', (req, res) => {
     .status(200)
 })
 
-export { app }
+app.use('/api/users', userRoutes)
+app.use('/api/auth', authRoutes)
+app.use('/api/habits', habitRoutes)
 
+export { app }
 export default app

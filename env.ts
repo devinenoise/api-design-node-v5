@@ -12,9 +12,9 @@ const isTesting = process.env.APP_STAGE === 'test'
 
 // only load .env files in non-production environments
 if (isDevelopment) {
-  loadEnv()          // reads .env.dev
+  loadEnv() // reads .env.dev
 } else if (isTesting) {
-  loadEnv('test')    // reads .env.test
+  loadEnv('test') // reads .env.test
 }
 
 // z.coerce.number() is needed because all process.env values are strings;
@@ -27,8 +27,8 @@ const envSchema = z.object({
   APP_STAGE: z.enum(['dev', 'test', 'production']).default('dev'),
 
   PORT: z.coerce.number().positive().default(3000),
-  DATABASE_URL: z.string().startsWith('postgresql://'),
-  JWT_SECRET: z.string().min(32, 'Must be 32 chars long'),
+  // DATABASE_URL: z.string().startsWith('postgresql://'),
+  // JWT_SECRET: z.string().min(32, 'Must be 32 chars long'),
   JWT_EXPIRES_IN: z.string().default('7d'),
   // bcrypt cost factor — higher = slower hash but more secure; 10–20 is the safe range
   BCRYPT_ROUNDS: z.coerce.number().min(10).max(20).default(12),
