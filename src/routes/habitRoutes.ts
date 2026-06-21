@@ -1,4 +1,10 @@
 import { Router } from 'express'
+import {
+  validateBody,
+  validateParams,
+  validateQuery,
+} from '../middleware/validation.ts'
+import { createHabitSchema, habitParamSchema } from '../schemas/habits.ts'
 
 const router = Router()
 
@@ -12,19 +18,24 @@ router.get('/:id', (req, res) => {
   res.json({ message: 'User habit fetch endpoint' })
 })
 
-router.post('/', (req, res) => {
+router.post('/', validateBody(createHabitSchema), (req, res) => {
   // Create habit logic here
   res.json({ message: 'User habit creation endpoint' })
 })
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', validateParams(habitParamSchema), (req, res) => {
   // Delete habit logic here
   res.json({ message: 'User habit deletion endpoint' })
 })
 
-router.post('/:id/complete', (req, res) => {
-  // Mark habit as complete logic here
-  res.json({ message: 'User habit completion endpoint' })
-})
+router.post(
+  '/:id/complete',
+  validateParams(habitParamSchema),
+  validateBody(createHabitSchema),
+  (req, res) => {
+    // Mark habit as complete logic here
+    res.json({ message: 'User habit completion endpoint' })
+  },
+)
 
 export default router
