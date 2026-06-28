@@ -1,5 +1,6 @@
 import {
   pgTable,
+  pgEnum,
   uuid,
   varchar,
   text,
@@ -8,6 +9,12 @@ import {
   integer,
 } from 'drizzle-orm/pg-core'
 import { relations } from 'drizzle-orm'
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod'
+
+// Define a native Postgres ENUM type for habit frequency. This enforces the allowed
+// values at the database level (not just in application code) and is reused by both the
+// column definition below and the auto-generated drizzle-zod validation schemas.
+export const frequencyEnum = pgEnum('frequency', ['daily', 'weekly', 'monthly'])
 
 // always export the schema to ensure that it is available for use in other parts of the application, such as in the database connection and query execution modules. This allows for a centralized definition of the database structure, making it easier to maintain and update as the application evolves.
 export const users = pgTable('users', {
@@ -28,8 +35,8 @@ export const habits = pgTable('habits', {
     .notNull(),
   name: varchar('name', { length: 100 }).notNull(),
   description: text('description'),
-  frequency: varchar('frequency', { length: 50 }).notNull(),
-  targetCount: integer('target_count').notNull(),
+  frequency: frequencyEnum('frequency').notNull(),
+  targetCount: integer('target_count').default(1).notNull(),
   isActive: boolean('is_active').default(true).notNull(),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -106,3 +113,24 @@ export const habitTagRelations = relations(habitTags, ({ one }) => ({
     references: [tags.id],
   }),
 }))
+
+// Create Zod schemas for validation and type inference for middleware and API endpoints. These schemas ensure that the data being inserted into or selected from the database adheres to the defined structure, providing type safety and validation at runtime.
+export type User = typeof users.$inferSelect
+export type Habit = typeof habits.$inferSelect
+export type Entry = typeof entries.$inferSelect
+export type Tag = typeof tags.$inferSelect
+export type HabitTag = typeof habitTags.$inferSelect
+
+export const insertUserSchema = createInsertSchema(users)
+export const selectUserSchema = createSelectSchema(users)
+
+export const insertHabitSchema = createInsertSchema(habits)
+export const selectHabitSchema = createSelectSchema(habits)
+
+export const insertEntrySchema = createInsertSchema(entries)
+export const selectEntrySchema = createSelectSchema(entries)
+
+export const insertTagSchema = createInsertSchema(tags)
+export const selectTagSchema = createSelectSchema(tags)
+export const insertHabitTagSchema = createInsertSchema(habitTags)
+export const selectHabitTagSchema = createSelectSchema(habitTags)
