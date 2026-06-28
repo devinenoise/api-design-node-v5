@@ -1,3 +1,4 @@
+import { pathToFileURL } from 'node:url'
 import { db } from './connection.ts'
 import { users, habits, entries, tags, habitTags } from './schema.ts'
 
@@ -68,7 +69,7 @@ async function seed() {
       date.setDate(date.getDate() - i)
       await db.insert(entries).values({
         habitId: exerciseHabit.id,
-        completion_date: date,
+        completionDate: date,
         note: i === 0 ? 'Great workout today!' : null,
       })
     }
@@ -81,7 +82,7 @@ async function seed() {
         habits: {
           with: {
             entries: true,
-            habitTags: {
+            tags: {
               with: { tag: true },
             },
           },
@@ -102,7 +103,7 @@ async function seed() {
 }
 
 // Run seed if this file is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
+if (import.meta.url === pathToFileURL(process.argv[1]).href) {
   seed()
     .then(() => process.exit(0))
     .catch((error) => {
